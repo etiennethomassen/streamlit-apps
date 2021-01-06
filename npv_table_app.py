@@ -16,20 +16,26 @@ st.sidebar.title('Settings')
 st.sidebar.markdown('Main settings for the calculations. The actual management prescription can be altered '
                     'in the table in the main body')
 
+st.sidebar.subheader('Rotation length')
+# st.sidebar.markdown('Set the interest rate.')
+
+rotation = st.sidebar.slider('Rotation length (10 - 200)', min_value=10, value=40, max_value=200, step=5)
+st.sidebar.write('Current rotation length:', rotation, ' years')
+
 st.sidebar.subheader('Interest')
-st.sidebar.markdown('Set the interest rate.')
+# st.sidebar.markdown('Set the interest rate.')
 
 interest = st.sidebar.slider('Interest rate (0.0% - 10.0%)', min_value=0.0, max_value=10.0, step=.1)
 st.sidebar.write('Current interest value:', interest, '%')
 
 st.sidebar.subheader('Additional yearly costs')
-st.sidebar.markdown('Set additional yearly costs.')
+# st.sidebar.markdown('Set additional yearly costs.')
 
 yearly_costs = st.sidebar.slider('Additional yearly costs', min_value=0.0, max_value=1000.0, step=5.0)
 st.sidebar.write('Additional yearly costs:', yearly_costs)
 
 st.sidebar.subheader('Additional yearly revenues')
-st.sidebar.markdown('Set additional yearly income.')
+# st.sidebar.markdown('Set additional yearly income.')
 
 yearly_revenue = st.sidebar.slider('Additional yearly revenue (0 - 100)', min_value=0.0, max_value=1000.0, step=5.0)
 st.sidebar.write('Additional yearly revenue:', yearly_revenue)
@@ -48,7 +54,7 @@ with st.beta_expander("Edit stand prescription", expanded=True):
     The table below can be adapted by adding, removing and editing measures and the associated costs and revenues.
     """
 
-    df = pd.DataFrame(np.arange(0, 101, 5), columns=['t'])
+    df = pd.DataFrame(np.arange(0, rotation+1, 5), columns=['t'])
     header_list = ['t', 'measure', 'costs', 'revenue']
     df = df.reindex(columns=header_list)
     df['costs'] = 0
@@ -71,24 +77,13 @@ with st.beta_expander("Edit stand prescription", expanded=True):
     # Set initial result
     returned_df['result'] = returned_df['revenue'] + returned_df['revenue_yearly'] \
                             - returned_df['costs'] - returned_df['costs_yearly']
-    # Get rotation length
-    # filled_df = returned_df[returned_df['result'] > 0]
-    # max_rotation_index = filled_df['t'].max()
-    # max_rotation_index = 9
-    # print(max_rotation_index)
-    #
-    # returned_df['costs_yearly'][:max_rotation_index] = yearly_costs
-    # returned_df['revenue_yearly'][:max_rotation_index] = yearly_revenue
 
     returned_df['npv_costs'] = round((returned_df['costs'] + returned_df['costs_yearly']) / (1 + interest / 100) ** returned_df['t'], 2)
     returned_df['npv_revenue'] = round((returned_df['revenue'] + returned_df['revenue_yearly']) / (1 + interest / 100) ** returned_df['t'], 2)
 
-    # Get maximum t of rotation
-    filled_df = returned_df[returned_df['result'] > 0]
-    t_max = filled_df['t'].max()
     # calculate FPV per cost and revenue
-    returned_df['fpv_costs'] = round((returned_df['costs'] + returned_df['costs_yearly'])  * (1 + interest / 100) ** (t_max - returned_df['t']), 2)
-    returned_df['fpv_revenue'] = round((returned_df['revenue'] + returned_df['revenue_yearly']) * (1 + interest / 100) ** (t_max - returned_df['t']), 2)
+    returned_df['fpv_costs'] = round((returned_df['costs'] + returned_df['costs_yearly'])  * (1 + interest / 100) ** (rotation - returned_df['t']), 2)
+    returned_df['fpv_revenue'] = round((returned_df['revenue'] + returned_df['revenue_yearly']) * (1 + interest / 100) ** (rotation - returned_df['t']), 2)
 
     # calculate NPV per year
     returned_df.loc[0, 'npv'] = 0
@@ -114,7 +109,7 @@ with st.beta_expander("Edit stand prescription", expanded=True):
     fpv_cumulative = result.iloc[0]['fpv']
     npv_cumulative = result.iloc[0]['npv']
 
-    lev = fpv_cumulative / (1 + interest / 100) ** t_max - 1
+    lev = fpv_cumulative / (1 + interest / 100) ** rotation - 1
 
 st.subheader('Net Present Value @ ' + str(interest) + '% interest')
 """
@@ -147,11 +142,9 @@ st.altair_chart(c, use_container_width=True)
 
 st.write('NPV: ', round(npv_cumulative, 2))
 
-"""
-## Land Expectation Value
-
-"""
-st.write('LEV: ' + str(round(lev, 2)))
+# Land Expectation Value
+st.subheader('Land Expectation Value')
+st.write('LEV: ', round(lev, 2))
 
 """
 ## Literature
@@ -159,7 +152,7 @@ st.write('LEV: ' + str(round(lev, 2)))
 Klemperer, W.D. 1996. Forest Resourece Economics and Finance. 551p.
 """
 
-st.subheader('Calculated table')
+# st.subheader('Calculated table')
 # clean (remove columns added just for Altair)
-returned_df.drop(['Net Present Value'], axis=1, inplace=True)
-returned_df
+# returned_df.drop(['Net Present Value'], axis=1, inplace=True)
+# returned_df
