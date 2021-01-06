@@ -19,13 +19,13 @@ st.sidebar.markdown('Main settings for the calculations. The actual management p
 st.sidebar.subheader('Rotation length')
 # st.sidebar.markdown('Set the interest rate.')
 
-rotation = st.sidebar.slider('Rotation length (10 - 200)', min_value=10, value=35, max_value=200, step=5)
+rotation = st.sidebar.slider('Rotation length (10 - 200)', min_value=10, value=70, max_value=200, step=5)
 st.sidebar.write('Current rotation length:', rotation, ' years')
 
 st.sidebar.subheader('Interest')
 # st.sidebar.markdown('Set the interest rate.')
 
-interest = st.sidebar.slider('Interest rate (0.0% - 10.0%)', min_value=0.0, value=9.0, max_value=10.0, step=.1)
+interest = st.sidebar.slider('Interest rate (0.0% - 10.0%)', min_value=0.0, value=3.0, max_value=10.0, step=.1)
 st.sidebar.write('Current interest value:', interest, '%')
 
 st.sidebar.subheader('Additional yearly costs')
@@ -60,10 +60,35 @@ with st.beta_expander("Edit stand prescription", expanded=True):
     df['costs'] = 0
     df['revenue'] = 0
 
-    df.loc[[0], ['measure', 'costs', 'revenue']] = ['reforest', 95, 0]
-    df.loc[[15], ['measure', 'costs', 'revenue']] = ['precommercial thinning', 0, 550]
-    df.loc[[25], ['measure', 'costs', 'revenue']] = ['thinning', 0, 1500]
-    df.loc[[35], ['measure', 'costs', 'revenue']] = ['harvest and land sale', 0, 3350]
+
+    df.loc[[0], ['measure', 'costs', 'revenue']] = ['reforest', 5000, 0]
+    df.loc[[10], ['measure', 'costs', 'revenue']] = ['thinning', 65, 355.45]
+    df.loc[[15], ['measure', 'costs', 'revenue']] = ['thinning', 65, 1435.13]
+    df.loc[[20], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2187.50]
+    df.loc[[25], ['measure', 'costs', 'revenue']] = ['thinning', 65, 1983.10]
+    df.loc[[30], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2593.94]
+    df.loc[[35], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2378.21]
+    df.loc[[40], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2613.07]
+    df.loc[[45], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2387.76]
+    df.loc[[50], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2177.34]
+    df.loc[[55], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2348.20]
+    df.loc[[60], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2157.30]
+    df.loc[[65], ['measure', 'costs', 'revenue']] = ['thinning', 65, 2440.96]
+    df.loc[[70], ['measure', 'costs', 'revenue']] = ['harvest and land sale', 65, 42360.34]
+
+
+    # Klemperer 1996 p227
+    # df.loc[[0], ['measure', 'costs', 'revenue']] = ['reforest', 150, 0]
+    # df.loc[[10], ['measure', 'costs', 'revenue']] = ['precommercial thinning', 50, 0]
+    # df.loc[[20], ['measure', 'costs', 'revenue']] = ['thinning', 0, 300]
+    # df.loc[[40], ['measure', 'costs', 'revenue']] = ['harvest and land sale', 0, 3500]
+
+    # Bullard & Straka 2011. Basic Concepts in Forest Valuation and Investment Analysis Basic Concepts in Forest Valuation and Investment Analysis
+    # Section 4. Financial criteria – page 4.20
+    # df.loc[[0], ['measure', 'costs', 'revenue']] = ['reforest', 95, 0]
+    # df.loc[[15], ['measure', 'costs', 'revenue']] = ['precommercial thinning', 0, 550]
+    # df.loc[[25], ['measure', 'costs', 'revenue']] = ['thinning', 0, 1500]
+    # df.loc[[35], ['measure', 'costs', 'revenue']] = ['harvest and land sale', 0, 3350]
 
     gb = GridOptionsBuilder(min_column_width=50, editable_columns=True)
     gb.build_columnsDefs_from_dataframe(df)
@@ -144,21 +169,26 @@ c = (bar + line).properties(width=600)
 
 st.altair_chart(c, use_container_width=True)
 
-st.write('NPV: ', round(npv_cumulative, 2))
-st.write('FPV: ', round(fpv_cumulative, 2))
+st.write('Net Present Value (NPV): ', round(npv_cumulative, 2))
+st.write('Future Present Value (FPV): ', round(fpv_cumulative, 2))
 
 # Land Expectation Value
 st.subheader('Land Expectation Value')
 """
 Assuming only the cash flows in the equation, LEV is the maximum an investor could pay for bare land 
-and still earn the minimum acceptablle rate of return r (Klemperer, 1996).
+and still earn the minimum acceptable rate of return r (Klemperer, 1996).
 """
-st.write('LEV: ', round(lev, 2))
+st.write('Land Expectation Value (LEV): ', round(lev, 2))
+
+st.write('If you purchase the timberland for', round(lev, 2), ' per unit area and experience the costs '
+         'and revenues projected your timberland investment will earn a 9% rate of return (Bullard & Straka 2011)')
 
 """
 ## Literature
 
-Klemperer, W.D. 1996. Forest Resourece Economics and Finance. 551p.
+- Klemperer, W.D. 1996. Forest Resourece Economics and Finance. 551p.
+- Bullard, S.H. & T.J. Straka 2011. Basic Concepts in Forest Valuation and Investment Analysis. eBooks. 21. 
+https://scholarworks.sfasu.edu/ebooks/21/
 """
 
 # st.subheader('Calculated table')
